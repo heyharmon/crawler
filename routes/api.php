@@ -14,6 +14,40 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+/*
+ * Sites
+ *
+ */
+
+
+Route::group(['prefix' => 'sites'], function() {
+    Route::get('/all',       'Api\SiteController@index');
+    Route::post('/',         'Api\SiteController@store');
+    Route::get('/',          'Api\SiteController@show');
+    Route::put('/',          'Api\SiteController@update');
+    Route::delete('/delete', 'Api\SiteController@destroy');
+});
+
+/*
+ * Site Crawl
+ *
+ */
+Route::post('/site/crawl', 'Api\SiteCrawlController@store');
+
+/*
+ * Site Pages
+ *
+ */
+Route::get('/site/pages', 'Api\SitePagesController@index');
+
+/*
+ * Handle Non-existent Routes
+ *
+ * Respond with a message and 404 for non-existent routes
+ *
+ */
+Route::fallback(function () {
+    return response()->json([
+        'message' => 'Silence is golden',
+    ], 404);
 });
