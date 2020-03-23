@@ -9,6 +9,28 @@ use App\Site;
 
 class SitePagesController extends Controller
 {
+
+    /**
+     * Public variables.
+     */
+    public $scheme;
+    public $host;
+
+    /**
+     * Contructor
+     *
+     * @return void
+     */
+    public function __construct(Request $request)
+    {
+
+        if ($request['url']) {
+            $this->scheme = parse_url($request['url'])['scheme']; // e.g., http(s)
+            $this->host = parse_url($request['url'])['host']; // e.g., heyharmon.com
+        }
+
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -16,7 +38,7 @@ class SitePagesController extends Controller
     {
 
         // Get site and its page, failed pages
-        $site = Site::where('url', '=', request('url'))
+        $site = Site::where('host', '=', $this->host)
             ->with('pages')
             ->with('failedPages')
             ->firstOrFail();

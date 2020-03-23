@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\Carbon;
+
 class Site extends Model
 {
     /**
@@ -57,13 +59,26 @@ class Site extends Model
     */
 
     /*
+     * Set 'last_crawl' attribute
+     * Transform current database value to human readable
+     *
+     */
+    public function getLastCrawlAttribute($value)
+    {
+        return Carbon::parse($value)->diffForHumans();
+    }
+
+    /*
      * Set 'crawling_count' attribute
+     * Append to the model's array form
      *
      */
     public function getJobsCountAttribute()
     {
+
+        // Filter jobs by this site host
         $jobs = \App\Jobs::all()->filter( function($job) {
-            return $job->host === 'heyharmon.com';
+            return $job->host === $this->host;
         });
 
         return $jobs->count();
@@ -71,6 +86,7 @@ class Site extends Model
 
     /*
      * Set 'pages_count' attribute
+     * Append to the model's array form
      *
      */
     public function getPagesCountAttribute()

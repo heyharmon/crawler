@@ -24,7 +24,7 @@ class SiteStoreRequest extends ApiRequest
     public function rules()
     {
         return [
-            'url' => 'url|required|unique:sites',
+            'url' => 'url|required',
         ];
     }
 
@@ -38,7 +38,6 @@ class SiteStoreRequest extends ApiRequest
         return [
             'url.url' => 'Must be a valid url. E.g., https://google.com',
             'url.required' => 'Url is required',
-            'url.unique' => 'Url already exists',
         ];
     }
 }

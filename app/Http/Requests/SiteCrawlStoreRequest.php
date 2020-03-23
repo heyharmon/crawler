@@ -24,7 +24,7 @@ class SiteCrawlStoreRequest extends ApiRequest
     public function rules()
     {
         return [
-            'url' => 'url|required|exists:sites',
+            'url' => 'url|required',
         ];
     }
 
@@ -38,7 +38,6 @@ class SiteCrawlStoreRequest extends ApiRequest
         return [
             'url.url' => 'Must be a valid url. E.g., https://google.com',
             'url.required' => 'Url is required',
-            'url.exists' => 'The url you want to crawl does not exist',
         ];
     }
 }

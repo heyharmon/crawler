@@ -14,6 +14,28 @@ use App\Http\Requests\SiteCrawlStoreRequest;
 
 class SiteCrawlController extends Controller
 {
+
+    /**
+     * Public variables.
+     */
+    public $scheme;
+    public $host;
+
+    /**
+     * Contructor
+     *
+     * @return void
+     */
+    public function __construct(Request $request)
+    {
+
+        if ($request['url']) {
+            $this->scheme = parse_url($request['url'])['scheme']; // e.g., http(s)
+            $this->host = parse_url($request['url'])['host']; // e.g., heyharmon.com
+        }
+
+    }
+
     /**
      * Store.
      *
@@ -27,7 +49,7 @@ class SiteCrawlController extends Controller
         $validated = $request->validated();
 
         // Find this site in database
-        $requested_site = Site::where('url', '=', $validated['url'])->firstOrFail();
+        $requested_site = Site::where('host', '=', $this->host)->firstOrFail();
 
         // TODO: Check that the site does not already have a crawl in progress
 
@@ -37,14 +59,15 @@ class SiteCrawlController extends Controller
 
         // Create new site
         $site = Site::create([
-            'url' => $validated['url'],
+            'scheme' => $this->scheme,
+            'host' => $this->host,
         ]);
 
         // Create site's first new page
         $page = Page::create([
             'site_id'    => $site->id,
             'is_crawled' => false,
-            'url'        => $site->url,
+            'url'        => $this->scheme . '://' . $this->host,
         ]);
 
         // Dispatch a job to crawl site pages

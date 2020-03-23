@@ -24,7 +24,6 @@ Route::group(['prefix' => 'sites'], function() {
     Route::get('/all',       'Api\SiteController@index');
     Route::post('/',         'Api\SiteController@store');
     Route::get('/',          'Api\SiteController@show');
-    Route::put('/',          'Api\SiteController@update');
     Route::delete('/delete', 'Api\SiteController@destroy');
 });
 

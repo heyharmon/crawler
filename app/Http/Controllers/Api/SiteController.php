@@ -12,6 +12,28 @@ use App\Http\Requests\SiteUpdateRequest;
 
 class SiteController extends Controller
 {
+
+    /**
+     * Public variables.
+     */
+    public $scheme;
+    public $host;
+
+    /**
+     * Contructor
+     *
+     * @return void
+     */
+    public function __construct(Request $request)
+    {
+
+        if ($request['url']) {
+            $this->scheme = parse_url($request['url'])['scheme']; // e.g., http(s)
+            $this->host = parse_url($request['url'])['host']; // e.g., heyharmon.com
+        }
+
+    }
+
     /**
      * Get all.
      */
@@ -36,7 +58,8 @@ class SiteController extends Controller
 
         // Store site
         $site = Site::create([
-            'url' => $validated['url'],
+            'scheme' => $this->scheme,
+            'host' => $this->host,
         ]);
 
         return response()->json($site);
@@ -50,31 +73,10 @@ class SiteController extends Controller
     {
 
         // Find this site in database
-        $site = Site::where('url', '=', request('url'))->firstOrFail();
+        $site = Site::where('host', '=', $this->host)->firstOrFail();
 
         return response()->json($site);
 
-    }
-
-    /**
-     * Update item in database.
-     */
-    public function update(SiteUpdateRequest $request)
-    {
-
-        // Validate request
-        $validated = $request->validated();
-
-        // Find this site in database
-        $site = Site::where('url', '=', $validated['url'])->firstOrFail();
-
-        // Update
-        $site->update([
-            'url' => $validated['new_url'],
-        ]);
-
-        return response()->json($site);
-        
     }
 
     /**
@@ -87,7 +89,7 @@ class SiteController extends Controller
         $validated = $request->validated();
 
         // Find this site in database
-        $site = Site::where('url', '=', $validated['url'])->firstOrFail();
+        $site = Site::where('host', '=', $this->host)->firstOrFail();
 
         // Delete
         $site->delete();

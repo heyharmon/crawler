@@ -15,7 +15,8 @@ class CreateSitesTable extends Migration
     {
         Schema::create('sites', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('url')->unique();
+            $table->string('scheme');
+            $table->string('host')->unique();
             $table->dateTime('last_crawl')->nullable();
             $table->timestamps();
         });
