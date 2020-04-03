@@ -142,8 +142,14 @@ class Crawl implements ShouldQueue
         if (isset($parsed_url['host'])) {
 
             // If provided URL matches this domain
+            // and scheme matches this scheme
             // and does not already exist in the database
-            if (strpos($this->page->url, $parsed_url['host']) !== false && ! Page::where('url', $url)->exists()) {
+            if (
+                strpos($this->page->url, $parsed_url['host']) !== false &&
+                strpos($this->scheme, $parsed_url['scheme']) !== false &&
+                !Page::where('url', $url)->exists()
+                )
+            {
                 return true;
             }
         }
