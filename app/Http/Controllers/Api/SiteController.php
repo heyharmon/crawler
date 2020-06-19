@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+// Models
 use App\Site;
+
+// Requests
 use App\Http\Requests\SiteDestroyRequest;
 use App\Http\Requests\SiteStoreRequest;
 use App\Http\Requests\SiteUpdateRequest;
+
+// Services
+use App\Services\UrlParser\ParserService;
 
 class SiteController extends Controller
 {
@@ -16,8 +22,7 @@ class SiteController extends Controller
     /**
      * Public variables.
      */
-    public $scheme;
-    public $host;
+    public $parsed_url;
 
     /**
      * Contructor
@@ -27,10 +32,11 @@ class SiteController extends Controller
     public function __construct(Request $request)
     {
 
-        if ($request['url']) {
-            $this->scheme = parse_url($request['url'])['scheme']; // e.g., http(s)
-            $this->host = parse_url($request['url'])['host']; // e.g., heyharmon.com
-        }
+        // Set up Url parser service
+        $parser_service = new ParserService($request['url']);
+
+        // Set up parsed url
+        $this->parsed_url = $parser_service->parseUrl();
 
     }
 
@@ -57,9 +63,8 @@ class SiteController extends Controller
         $validated = $request->validated();
 
         // Store site
-        $site = Site::create([
-            'scheme' => $this->scheme,
-            'host' => $this->host,
+        $site = Site::firstOrCreate([
+            'domain' => $this->parsed_url['domain'],
         ]);
 
         return response()->json($site);
@@ -69,11 +74,11 @@ class SiteController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
+    public function show()
     {
 
         // Find this site in database
-        $site = Site::where('host', '=', $this->host)->firstOrFail();
+        $site = Site::where('domain', '=', $this->parsed_url['domain'])->firstOrFail();
 
         return response()->json($site);
 
@@ -89,7 +94,7 @@ class SiteController extends Controller
         $validated = $request->validated();
 
         // Find this site in database
-        $site = Site::where('host', '=', $this->host)->firstOrFail();
+        $site = Site::where('domain', '=', $this->parsed_url['domain'])->firstOrFail();
 
         // Delete
         $site->delete();

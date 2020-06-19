@@ -8,9 +8,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+// Packages
 use Goutte;
+
+// Models
 use App\Page;
 use App\FailedPage;
+
+// Services
+use App\Services\UrlParsing\UrlParsingService;
 
 class Crawl implements ShouldQueue
 {
@@ -27,20 +33,24 @@ class Crawl implements ShouldQueue
      * Public variables.
      */
     public $page;
-    public $scheme;
-    public $host;
+    public $domain;
+    public $path;
+    // public $scheme;
+    // public $host;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($page)
+    public function __construct($page, UrlParsingService $service)
     {
 
         $this->page = $page;
-        $this->scheme = parse_url($this->page->url)['scheme']; // e.g., http(s)
-        $this->host = parse_url($this->page->url)['host']; // e.g., heyharmon.com
+        $this->domain = $service->getDomain($request['url']);
+        $this->path = isset(parse_url($this->page->url)['path']) ? parse_url($this->page->url)['path'] : '/';
+        // $this->scheme = parse_url($this->page->url)['scheme']; // e.g., http(s)
+        // $this->host = parse_url($this->page->url)['host']; // e.g., heyharmon.com
 
     }
 
@@ -99,10 +109,14 @@ class Crawl implements ShouldQueue
             // Is href valid
             if ($this->isValidUrl($url)) {
 
+                // Get path
+                $path = parse_url($url)['path'];
+
                 // Persist new page to database
                 $page = Page::create([
                     'site_id' => $this->page->site_id,
                     'url' => $url,
+                    'path' => $path,
                     'is_crawled' => false,
                 ]);
 
@@ -145,9 +159,11 @@ class Crawl implements ShouldQueue
             // and scheme matches this scheme
             // and does not already exist in the database
             if (
-                strpos($this->page->url, $parsed_url['host']) !== false &&
-                strpos($this->scheme, $parsed_url['scheme']) !== false &&
-                !Page::where('url', $url)->exists()
+                $service->getDomain($url) == $this->domain &&
+                !Page::where('path', $parsed_url['path'])->exists()
+                // strpos($this->page->url, $parsed_url['host']) !== false &&
+                // strpos($this->scheme, $parsed_url['scheme']) !== false &&
+                // !Page::where('url', $url)->exists()
                 )
             {
                 return true;
