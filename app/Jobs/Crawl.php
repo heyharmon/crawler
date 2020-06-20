@@ -16,7 +16,7 @@ use App\Page;
 use App\FailedPage;
 
 // Services
-use App\Services\UrlParsing\UrlParsingService;
+use App\Services\UrlParser\ParserService;
 
 class Crawl implements ShouldQueue
 {
@@ -29,28 +29,53 @@ class Crawl implements ShouldQueue
      */
     public $tries = 1;
 
+    // /**
+    //  * Public variables.
+    //  */
+    // public $page;
+    // public $domain;
+    // public $path;
+    // // public $scheme;
+    // // public $host;
+    //
+    // /**
+    //  * Create a new job instance.
+    //  *
+    //  * @return void
+    //  */
+    // public function __construct($page, UrlParsingService $service)
+    // {
+    //
+    //     $this->page = $page;
+    //     $this->domain = $service->getDomain($request['url']);
+    //     $this->path = isset(parse_url($this->page->url)['path']) ? parse_url($this->page->url)['path'] : '/';
+    //     // $this->scheme = parse_url($this->page->url)['scheme']; // e.g., http(s)
+    //     // $this->host = parse_url($this->page->url)['host']; // e.g., heyharmon.com
+    //
+    // }
+
     /**
      * Public variables.
      */
     public $page;
-    public $domain;
-    public $path;
-    // public $scheme;
-    // public $host;
+    public $parsed_url;
 
     /**
-     * Create a new job instance.
+     * Contructor
      *
      * @return void
      */
-    public function __construct($page, UrlParsingService $service)
+    public function __construct($page)
     {
 
+        // Set up this page
         $this->page = $page;
-        $this->domain = $service->getDomain($request['url']);
-        $this->path = isset(parse_url($this->page->url)['path']) ? parse_url($this->page->url)['path'] : '/';
-        // $this->scheme = parse_url($this->page->url)['scheme']; // e.g., http(s)
-        // $this->host = parse_url($this->page->url)['host']; // e.g., heyharmon.com
+
+        // Set up Url parser service
+        $parser_service = new ParserService($page->url);
+
+        // Set up parsed url
+        $this->parsed_url = $parser_service->parseUrl();
 
     }
 
@@ -129,6 +154,7 @@ class Crawl implements ShouldQueue
         * Finish handeling this URL
         *
         */
+
         // Update status to crawled
         $this->page->is_crawled = true;
 
@@ -149,8 +175,11 @@ class Crawl implements ShouldQueue
     protected function isValidUrl($url)
     {
 
-        // Get the url's host, path, etc
-        $parsed_url = parse_url($url);
+        // Set up Url parser service
+        $parser_service = new ParserService($url);
+
+        // Set up parsed url
+        $parsed_url = $parser_service->parseUrl();
 
         // Url has a host
         if (isset($parsed_url['host'])) {
@@ -159,7 +188,7 @@ class Crawl implements ShouldQueue
             // and scheme matches this scheme
             // and does not already exist in the database
             if (
-                $service->getDomain($url) == $this->domain &&
+                $parsed_url['domain'] === $this->parsed_url['domain'] &&
                 !Page::where('path', $parsed_url['path'])->exists()
                 // strpos($this->page->url, $parsed_url['host']) !== false &&
                 // strpos($this->scheme, $parsed_url['scheme']) !== false &&
@@ -196,7 +225,7 @@ class Crawl implements ShouldQueue
         if (! isset($parsed_url['host'])) {
 
             // Concatenate this domain with url
-            $url = $this->scheme.'://'.$this->host.$url;
+            $url = $this->parsed_url['scheme'] . '://' . $this->parsed_url['host'] . $url;
         }
 
         return $url;
