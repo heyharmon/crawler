@@ -16,7 +16,7 @@ A Laravel powered API that generates website craw jobs using [Apify](https://my.
 | Verb | Path | Method |
 |--|--|--|
 | GET | [/api/websites]() | Index all websites |
-| GET | [/api/websites/{url}]() | Show a website by URL |
+| GET | [/api/websites/{domain}]() | Show a website by domain |
 
 
 ## Install API locally
