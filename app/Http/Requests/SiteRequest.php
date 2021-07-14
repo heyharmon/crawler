@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Api\ApiRequest;
 
-class SiteDestroyRequest extends ApiRequest
+class SiteRequest extends ApiRequest
 {
     /**
      * Determine if the user is authorized to make this request.

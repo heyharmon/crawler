@@ -9,98 +9,50 @@ use Illuminate\Http\Request;
 use App\Site;
 
 // Requests
-use App\Http\Requests\SiteDestroyRequest;
+use App\Http\Requests\SiteRequest;
 use App\Http\Requests\SiteStoreRequest;
-use App\Http\Requests\SiteUpdateRequest;
 
 // Services
-use App\Services\UrlParser\ParserService;
+use App\Services\UrlService;
 
 class SiteController extends Controller
 {
 
-    /**
-     * Public variables.
-     */
-    public $parsed_url;
-
-    /**
-     * Contructor
-     *
-     * @return void
-     */
-    public function __construct(Request $request)
-    {
-
-        // Set up Url parser service
-        $parser_service = new ParserService($request['url']);
-
-        // Set up parsed url
-        $this->parsed_url = $parser_service->parseUrl();
-
-    }
-
-    /**
-     * Get all.
-     */
     public function index()
     {
-
         // Get all sites
         $sites = Site::all();
 
         return response()->json($sites);
-
     }
 
-    /**
-     * Store new item in database.
-     */
     public function store(SiteStoreRequest $request)
     {
-
-        // Validate request
-        $validated = $request->validated();
-
-        // Store site
-        $site = Site::firstOrCreate([
-            'domain' => $this->parsed_url['domain'],
+        $site = Site::create([
+            'domain' => UrlService::getDomain($request['url'])
         ]);
 
         return response()->json($site);
-
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show()
+    public function show(SiteRequest $request)
     {
-
         // Find this site in database
-        $site = Site::where('domain', '=', $this->parsed_url['domain'])->firstOrFail();
+        $site = Site::where('domain', '=', UrlService::getDomain($request['url']))
+            ->firstOrFail();
 
         return response()->json($site);
-
     }
 
-    /**
-     * Remove item from database.
-     */
-    public function destroy(SiteDestroyRequest $request)
+    public function destroy(SiteRequest $request)
     {
-
-        // Validate request
-        $validated = $request->validated();
-
         // Find this site in database
-        $site = Site::where('domain', '=', $this->parsed_url['domain'])->firstOrFail();
+        $site = Site::where('domain', '=', UrlService::getDomain($request['url']))
+            ->firstOrFail();
 
         // Delete
         $site->delete();
 
         return response()->json($site);
-
     }
-
 }

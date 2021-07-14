@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Api\ApiRequest;
 
+use App\Rules\UniqueDomain;
+
 class SiteStoreRequest extends ApiRequest
 {
     /**
@@ -24,7 +26,11 @@ class SiteStoreRequest extends ApiRequest
     public function rules()
     {
         return [
-            'url' => 'url|required',
+            'url' => [
+                'required',
+                'url',
+                new UniqueDomain($this->url)
+            ]
         ];
     }
 
@@ -36,8 +42,8 @@ class SiteStoreRequest extends ApiRequest
     public function messages()
     {
         return [
-            'url.url' => 'Must be a valid url. E.g., https://google.com',
             'url.required' => 'Url is required',
+            'url.url' => 'Must be a valid url. E.g., https://google.com',
         ];
     }
 }

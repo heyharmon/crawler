@@ -24,53 +24,6 @@ use App\Jobs\Crawl;
 class SiteCrawlController extends Controller
 {
 
-    // /**
-    //  * Public variables.
-    //  */
-    // public $url;
-    // public $domain;
-    // // public $scheme;
-    // // public $host;
-    //
-    // /**
-    //  * Contructor
-    //  *
-    //  * @return void
-    //  */
-    // public function __construct(Request $request, UrlParsingService $service)
-    // {
-    //
-    //     $this->url = $request['url'];
-    //     $this->domain = $service->getDomain($request['url']);
-    //
-    //     // if ($request['url']) {
-    //     //     $this->scheme = parse_url($request['url'])['scheme']; // e.g., http(s)
-    //     //     $this->host = parse_url($request['url'])['host']; // e.g., heyharmon.com
-    //     // }
-    //
-    // }
-
-    /**
-     * Public variables.
-     */
-    public $parsed_url;
-
-    /**
-     * Contructor
-     *
-     * @return void
-     */
-    public function __construct(Request $request)
-    {
-
-        // Set up Url parser service
-        $parser_service = new ParserService($request['url']);
-
-        // Set up parsed url
-        $this->parsed_url = $parser_service->parseUrl();
-
-    }
-
     /**
      * Store.
      *
@@ -79,12 +32,9 @@ class SiteCrawlController extends Controller
      */
     public function store(SiteCrawlStoreRequest $request)
     {
-
-        // Validate request
-        $validated = $request->validated();
-
         // Find this site in database
-        $site = Site::where('domain', '=', $this->parsed_url['domain'])->firstOrFail();
+        $site = Site::where('host', '=', $this->host)
+            ->firstOrFail();
 
         // TODO: Check that the site does not already have a crawl in progress
 
@@ -94,7 +44,7 @@ class SiteCrawlController extends Controller
 
         // Create new site
         $site = Site::create([
-            'domain' => $this->parsed_url['domain'],
+            'host' => $this->host,
         ]);
 
         // Create page

@@ -8,44 +8,24 @@ use Illuminate\Http\Request;
 // Models
 use App\Site;
 
+// Services
+use App\Services\UrlService;
+
 class SitePagesController extends Controller
 {
 
-    /**
-     * Public variables.
-     */
-    public $scheme;
-    public $host;
-
-    /**
-     * Contructor
-     *
-     * @return void
-     */
-    public function __construct(Request $request)
-    {
-
-        if ($request['url']) {
-            $this->scheme = parse_url($request['url'])['scheme']; // e.g., http(s)
-            $this->host = parse_url($request['url'])['host']; // e.g., heyharmon.com
-        }
-
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
+        // Parse domain from url
+        $domain = UrlService::getDomain($request['url']);
 
-        // Get site and its page, failed pages
-        $site = Site::where('host', '=', $this->host)
+        // Get site and its pages, plus failed pages
+        $site = Site::where('domain', '=', $domain)
             ->with('pages')
             ->with('failedPages')
             ->firstOrFail();
 
         return response()->json($site);
-
     }
 
 }
