@@ -17,12 +17,17 @@ class SitePagesController extends Controller
     public function index(Request $request)
     {
         // Parse domain from url
-        $domain = UrlService::getDomain($request['url']);
+        // $domain = UrlService::getDomain($request['url']);
+        $host = UrlService::getHost($request['url']);
 
         // Get site and its pages, plus failed pages
-        $site = Site::where('domain', '=', $domain)
+        // $site = Site::where('domain', '=', $domain)
+        //     ->with('pages')
+        //     // ->with('failedPages')
+        //     ->firstOrFail();
+        $site = Site::where('host', '=', $host)
             ->with('pages')
-            ->with('failedPages')
+            // ->with('failedPages')
             ->firstOrFail();
 
         return response()->json($site);

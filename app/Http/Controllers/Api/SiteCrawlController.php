@@ -16,7 +16,7 @@ use App\Site;
 use App\Http\Requests\SiteCrawlStoreRequest;
 
 // Services
-use App\Services\UrlParser\ParserService;
+use App\Services\UrlService;
 
 // Jobs
 use App\Jobs\Crawl;
@@ -25,42 +25,41 @@ class SiteCrawlController extends Controller
 {
 
     /**
-     * Store.
+     * Crawl a page
      *
-     * Crawl all pages of site matching domain provided.
-     * A site with matching domain must already exist.
      */
     public function store(SiteCrawlStoreRequest $request)
     {
-        // Find this site in database
-        $site = Site::where('host', '=', $this->host)
+        $urlService = new UrlService();
+
+        // Find this site
+        // $site = Site::where('domain', '=', UrlService::getDomain($request['url']))
+        //     ->firstOrFail();
+        $site = Site::where('host', '=', UrlService::getHost($request['url']))
             ->firstOrFail();
 
-        // TODO: Check that the site does not already have a crawl in progress
+        // Find page or create it
+        $page = Page::firstOrCreate(
+            ['url' => $request['url']],
+            [
+                'is_crawled' => false,
+                'site_id'    => $site->id,
+                'url'        => $request['url'],
+            ]
+        );
 
-        // Delete the site
-        // Site pages & failed pages will also be deleted
-        $site->delete();
-
-        // Create new site
-        $site = Site::create([
-            'host' => $this->host,
-        ]);
-
-        // Create page
-        $page = Page::create([
-            'site_id'    => $site->id,
-            'is_crawled' => false,
-            'url'        => $request['url'],
-        ]);
-
-        // Dispatch a job to crawl site pages
-        $this->dispatch(new Crawl($page));
+        // Crawl the page
+        Crawl::dispatch($page);
 
         // Set sites' last crawl to now
-        $site->last_crawl = Carbon::now()->format('Y-m-d H:i:s');
-        $site->save();
+        // $site->last_crawl = Carbon::now()->format('Y-m-d H:i:s');
 
-        return response()->json('Site crawl in progress...');
+        // Save page
+        // $site->save();
+
+        return response()->json([
+            'message' => 'Crawl in progress.',
+            'page' => $page
+        ]);
     }
 }

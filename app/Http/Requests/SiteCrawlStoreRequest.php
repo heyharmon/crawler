@@ -4,10 +4,10 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Api\ApiRequest;
 
-// use App\Rules\UniqueDomain;
-use App\Rules\UniqueHost;
+// use App\Rules\ExistingDomain;
+use App\Rules\ExistingHost;
 
-class SiteStoreRequest extends ApiRequest
+class SiteCrawlStoreRequest extends ApiRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,7 +30,7 @@ class SiteStoreRequest extends ApiRequest
             'url' => [
                 'required',
                 'url',
-                new UniqueHost($this->url)
+                new ExistingHost($this->url)
             ]
         ];
     }

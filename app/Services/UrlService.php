@@ -6,6 +6,7 @@ namespace App\Services;
  * Get url parts
  *
  * Scheme - https
+ * Subdomain - www
  * Host   - www.heyharmon.com
  * Domain - heyharmon.com
  * Path   - /foo/bar
@@ -18,6 +19,7 @@ class UrlService {
     public function getAll($url)
     {
         return $url_parts = [
+            'url'    => $url,
             'scheme' => $this->getScheme($url),
             'host'   => $this->getHost($url),
             'domain' => $this->getDomain($url),
@@ -32,7 +34,12 @@ class UrlService {
      */
     public static function getScheme($url)
     {
-        return parse_url($url)['scheme'];
+        if (isset(parse_url($url)['scheme'])) {
+            return parse_url($url)['scheme'];
+        }
+
+        // No scheme in $url
+        return '';
     }
 
     /*
@@ -42,7 +49,12 @@ class UrlService {
      */
     public static function getHost($url)
     {
-        return parse_url($url)['host'];
+        if (isset(parse_url($url)['host'])) {
+            return parse_url($url)['host'];
+        }
+
+        // No host in $url
+        return '';
     }
 
     /*
@@ -53,11 +65,15 @@ class UrlService {
     public static function getDomain($url)
     {
         // Extract the domain
-        if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', parse_url($url)['host'], $regs)) {
+        if (isset(parse_url($url)['host'])) {
+            if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', parse_url($url)['host'], $regs)) {
 
-            // Return the domain
-            return $regs['domain'];
+                // Return the domain
+                return $regs['domain'];
+            }
 
+            // No host in $url
+            return '';
         }
 
         // No domain in $url
@@ -71,7 +87,12 @@ class UrlService {
      */
     public static function getPath($url)
     {
-        return parse_url($url)['host'];
+        if (isset(parse_url($url)['path'])) {
+            return parse_url($url)['path'];
+        }
+
+        // No path in $url
+        return '';
     }
 
 }

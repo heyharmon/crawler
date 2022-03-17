@@ -12,10 +12,10 @@
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
+        "heyharmon/laravel-apify": "dev-master",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
-        "laravel/ui": "^2.0",
-        "weidner/goutte": "^1.5"
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
@@ -61,5 +61,11 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ]
+    },
+    "repositories": [
+    {
+      "type": "path",
+      "url": "/Users/heyharmon/Documents/Code/laravel-packages/laravel-apify"
     }
+  ]
 }

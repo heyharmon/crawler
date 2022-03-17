@@ -17,11 +17,12 @@ class CreatePagesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('site_id');
             $table->boolean('is_crawled')->unsigned()->default(0);
-            $table->unsignedInteger('status')->nullable();
+            $table->integer('status')->nullable();
             $table->string('type')->default('item');
             $table->string('title')->nullable();
             $table->string('url');
-            $table->string('path')->nullable();
+            $table->string('wordcount')->nullable();
+            $table->text('body')->nullable();
             $table->timestamps();
         });
 

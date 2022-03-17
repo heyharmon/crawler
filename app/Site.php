@@ -77,6 +77,9 @@ class Site extends Model
     {
 
         // Filter jobs by this site host
+        // $jobs = \App\Jobs::all()->filter( function($job) {
+        //     return $job->domain === $this->domain;
+        // });
         $jobs = \App\Jobs::all()->filter( function($job) {
             return $job->host === $this->host;
         });

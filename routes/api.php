@@ -19,13 +19,17 @@ use Illuminate\Support\Facades\Route;
  *
  */
 
+ Route::get('/sites/all',       'Api\SiteController@index');
+ Route::post('/sites',         'Api\SiteController@store');
+ Route::get('/sites',          'Api\SiteController@show');
+ Route::delete('/sites/delete', 'Api\SiteController@destroy');
 
-Route::group(['prefix' => 'sites'], function() {
-    Route::get('/all',       'Api\SiteController@index');
-    Route::post('/',         'Api\SiteController@store');
-    Route::get('/',          'Api\SiteController@show');
-    Route::delete('/delete', 'Api\SiteController@destroy');
-});
+// Route::group(['prefix' => 'sites'], function() {
+//     Route::get('/all',       'Api\SiteController@index');
+//     Route::post('/',         'Api\SiteController@store');
+//     Route::get('/',          'Api\SiteController@show');
+//     Route::delete('/delete', 'Api\SiteController@destroy');
+// });
 
 /*
  * Site Crawl
@@ -45,8 +49,8 @@ Route::get('/site/pages', 'Api\SitePagesController@index');
  * Respond with a message and 404 for non-existent routes
  *
  */
-Route::fallback(function () {
-    return response()->json([
-        'message' => 'Silence is golden',
-    ], 404);
-});
+// Route::fallback(function () {
+//     return response()->json([
+//         'message' => 'Silence is golden',
+//     ], 404);
+// });
