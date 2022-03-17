@@ -1,4 +1,4 @@
-# Crawler API
+# Crawler
 
 A Laravel powered API that helps you queue webpage crawl jobs. This app accepts a url and queues a job for that url. The job itself requests a scrape from an endpoint such as a Cheerio/Puppeteer instance and expects a response containing the content and links found on the page. For each link found, a job is queued. Each link that matches the original url host will be stored. 
 
