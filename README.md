@@ -5,6 +5,8 @@ A Laravel powered API that helps you queue webpage crawl jobs. This app accepts 
 
 ## Get started
 
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/1241377-f6b7d178-8fc8-4064-b4b8-29161cd8b17a?action=collection%2Ffork&collection-url=entityId%3D1241377-f6b7d178-8fc8-4064-b4b8-29161cd8b17a%26entityType%3Dcollection%26workspaceId%3Da8e39e6f-193c-49f5-8474-38b7e2bfe224)
+
 [WIP] - API usage instructions coming soon.
 
 ### Authentication
