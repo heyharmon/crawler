@@ -18,7 +18,7 @@ use App\FailedPage;
 // Services
 use App\Services\UrlService;
 
-class Crawl implements ShouldQueue
+class EvaluateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -54,52 +54,26 @@ class Crawl implements ShouldQueue
     public function handle()
     {
         // Get page
-        $response = Http::get('https://us-central1-bloomcu-scraping-functions.cloudfunctions.net/cheerio/page', [
+        $response = Http::get('firebase-endpoint-url', [
             'url' => $this->page->url
         ])->json();
 
-        // Fail job / or 404/500
-        if ($response['status'] !== 200) {
-            $this->page->update([
-                'is_crawled' => true,
-                'status'     => $response['status'],
-            ]);
-
-            return true;
-        }
-
         // Update page
-        $this->page->update([
-            'is_crawled' => true,
-            'status'     => $response['status'],
-            'title'      => $response['title'],
-            'wordcount'  => $response['wordcount'],
-            'body'       => $response['body']
-        ]);
+        // $this->page->update([
+        //     'is_crawled' => true,
+        //     'status'     => $response['status'],
+        //     'title'      => $response['title'],
+        //     'wordcount'  => $response['wordcount'],
+        //     'body'       => $response['body']
+        // ]);
 
-        // Iterate over each link
-        foreach ($response['links'] as $link) {
-            $linkHost = UrlService::getHost($link['url']);
+        // Iterate over each violation
+        foreach ($response['violation'] as $violations) {
+            $violation = Violations::findOrCreate($violation_id, $violation);
 
-            // TODO: Right an action that processes the page via a pipeline:
-            if (
-                $linkHost === UrlService::getHost($this->page->url) && // Host matches site
-                !Page::where('url', $link['url'])->exists() // Doesn't already exist
-            ) {
-                $page = Page::create([
-                    'site_id'    => $this->page->site_id,
-                    'type'       => $link['type'],
-                    'url'        => $link['url'],
-                    'is_crawled' => false
-                ]);
-
-                // Crawl it
-                if ($link['type'] === 'link') {
-                    dispatch(new self($page));
-                    // dispatch(new EvaluateJob($page))
-                }
-            }
+            $this->page->violations()->sync($violation->violation_id);
         }
+
     }
 
     /**

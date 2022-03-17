@@ -32,4 +32,13 @@ class Page extends Model
         return $this->belongsTo(\App\Site::class);
     }
 
+    /*
+     * Define Site relationship.
+     *
+     */
+    // public function violations()
+    // {
+    //     return $this->belongsToMany(\App\Violation::class, 'violation_id');
+    // }
+
 }
